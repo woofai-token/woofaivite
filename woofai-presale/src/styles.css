@@ -1,0 +1,39 @@
+body {
+    font-family: sans-serif;
+    background: #010101;
+    color: #00ff88;
+    padding: 1rem;
+  }
+  .container {
+    max-width: 600px;
+    margin: auto;
+  }
+  .card {
+    background: #111;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 0 30px #00ff8870;
+    margin-top: 2rem;
+    text-align: center;
+  }
+  .logo {
+    width: 100px;
+  }
+  button {
+    background: #00ff88;
+    border: none;
+    padding: 0.5rem 1rem;
+    color: black;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 1rem;
+  }
+  input {
+    padding: 0.5rem;
+    width: 100%;
+    background: #222;
+    color: #00ff88;
+    border: 1px solid #00ff88;
+    margin-bottom: 1rem;
+  }
+  
