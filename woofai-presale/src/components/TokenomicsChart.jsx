@@ -3,7 +3,8 @@ import Chart from 'chart.js/auto';
 
 export default function TokenomicsChart() {
   useEffect(() => {
-    new Chart(document.getElementById('tokenomicsChart'), {
+    const ctx = document.getElementById('tokenomicsChart');
+    const chart = new Chart(ctx, {
       type: 'doughnut',
       data: {
         labels: ['Presale (50%)', 'Airdrop (10%)', 'Liquidity (33%)', 'Marketing (7%)'],
@@ -13,13 +14,18 @@ export default function TokenomicsChart() {
         }]
       },
       options: {
-        plugins: { legend: { position: 'bottom' } },
-        responsive: true
+        plugins: { legend: { position: 'bottom', labels: { color: '#0fef21' } } },
+        responsive: true,
+        maintainAspectRatio: false,
       }
     });
+
+    return () => chart.destroy(); // Cleanup
   }, []);
 
   return (
-    <canvas id="tokenomicsChart" width="400" height="400"></canvas>
+    <div style={{ width: "100%", height: 300 }}>
+      <canvas id="tokenomicsChart" />
+    </div>
   );
 }

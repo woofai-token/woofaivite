@@ -7,7 +7,6 @@ import {
 import {
   PhantomWalletAdapter,
   SolflareWalletAdapter,
-  TorusWalletAdapter,
   SolletExtensionWalletAdapter,
 } from "@solana/wallet-adapter-wallets";
 import {
@@ -17,7 +16,7 @@ import {
 import { clusterApiUrl, PublicKey, Transaction, SystemProgram } from "@solana/web3.js";
 import TokenomicsChart from "./TokenomicsChart";
 
-const endpoint = clusterApiUrl("devnet"); // Change to mainnet-beta if needed
+
 const backendURL = "https://woofaiserver.onrender.com";
 
 function PresaleForm() {
@@ -42,7 +41,7 @@ function PresaleForm() {
       const connection = new ConnectionProvider({ endpoint }).connection;
 
       // Build transfer transaction
-      const recipient = new PublicKey("YOUR_TOKEN_RECEIVER_WALLET_ADDRESS"); // replace with your receiving wallet address
+      const recipient = new PublicKey("GWkwfF8BbA591V4ZFTLDJJ9eRy5Mhp2Z9zNBNFvf6cgy"); // replace with your receiving wallet address
       const lamports = Math.round(parseFloat(amount) * 1e9); // 1 SOL = 1e9 lamports
 
       let transaction = new Transaction().add(
@@ -118,7 +117,6 @@ function App() {
     () => [
       new PhantomWalletAdapter(),
       new SolflareWalletAdapter(),
-      new TorusWalletAdapter(),
       new SolletExtensionWalletAdapter(),
     ],
     []
