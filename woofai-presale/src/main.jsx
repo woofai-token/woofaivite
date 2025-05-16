@@ -8,7 +8,7 @@ import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 
 import "@solana/wallet-adapter-react-ui/styles.css";
 
-const network = "https://damp-methodical-borough.solana-devnet.quiknode.pro/e18ab1e69f366ad579fce3ada3eff27219db285f/";
+const network = "https://mainnet.helius-rpc.com/?api-key=fabdaf9f-b1de-4a1b-bb03-58532838cea3";
 
 import {
   PhantomWalletAdapter,
