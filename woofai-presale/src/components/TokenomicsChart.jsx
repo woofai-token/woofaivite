@@ -7,10 +7,15 @@ export default function TokenomicsChart() {
     const chart = new Chart(ctx, {
       type: 'doughnut',
       data: {
-        labels: ['Presale (50%)', 'Airdrop (10%)', 'Liquidity (33%)', 'Marketing (7%)'],
+        labels: ['Presale (50%)', 'Airdrop (10%)', 'Liquidity (33%)', 'Marketing (7%)','Development(5%)','team(5%)'],
         datasets: [{
-          data: [50, 10, 33, 7],
-          backgroundColor: ['#00ff88', '#7b00ff', '#ff007b', '#ffd700']
+          data: [50, 10, 33, 7,5,5],
+          backgroundColor: ['#00ff88',
+  '#7b00ff',
+  '#ff007b',
+  '#ffd700',
+  '#3fe700',
+  '#00d2ff',]
         }]
       },
       options: {
