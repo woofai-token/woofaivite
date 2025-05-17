@@ -1,4 +1,3 @@
-// Same imports...
 import React, { useState } from "react";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import { PublicKey, Transaction, SystemProgram } from "@solana/web3.js";
@@ -32,16 +31,29 @@ export default function PresaleForm() {
 
   async function handleBuy(e) {
     e.preventDefault();
-    if (!connected) return setStatus("Please connect your wallet first.");
+
+    if (!connected || !publicKey) {
+      setStatus("❌ Please connect your wallet first.");
+      return;
+    }
+
     const sol = parseFloat(solAmount);
-    if (!sol || isNaN(sol) || sol <= 0) return setStatus("Enter a valid SOL amount.");
+    if (!sol || isNaN(sol) || sol <= 0) {
+      setStatus("❌ Enter a valid SOL amount.");
+      return;
+    }
 
     try {
       setLoading(true);
-      setStatus("Creating transaction...");
-      const lamports = sol * 1e9;
+      setStatus("⏳ Creating transaction...");
 
-      const transaction = new Transaction().add(
+      const lamports = sol * 1e9;
+      const blockhashInfo = await connection.getLatestBlockhash("finalized");
+
+      const transaction = new Transaction({
+        feePayer: publicKey,
+        recentBlockhash: blockhashInfo.blockhash,
+      }).add(
         SystemProgram.transfer({
           fromPubkey: publicKey,
           toPubkey: RECEIVER_WALLET,
@@ -49,26 +61,52 @@ export default function PresaleForm() {
         })
       );
 
-      transaction.feePayer = publicKey;
-      transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+      // Optional: simulate transaction logs
+      try {
+        const simulation = await connection.simulateTransaction(transaction);
+        if (simulation.value.logs) {
+          console.log("Simulation logs:", simulation.value.logs);
+        }
+      } catch (simErr) {
+        console.warn("Simulation warning (continuing):", simErr.message);
+      }
 
-      setStatus("Sending transaction...");
-      const signature = await sendTransaction(transaction, connection);
-      setStatus("Waiting for confirmation...");
-      await connection.confirmTransaction(signature, "confirmed");
+      setStatus("🚀 Sending transaction...");
+      const signature = await sendTransaction(transaction, connection, {
+        skipPreflight: false,
+        preflightCommitment: "confirmed",
+      });
 
-      setStatus("Transaction confirmed. Verifying with backend...");
+      setStatus("⏳ Confirming transaction...");
+      await connection.confirmTransaction(
+        {
+          signature,
+          ...blockhashInfo,
+        },
+        "confirmed"
+      );
+
+      setStatus("✅ Transaction confirmed. Verifying with backend...");
+
       const response = await fetch(`${BACKEND_URL}/verify`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ signature, buyer: publicKey.toBase58(), amount: sol }),
+        body: JSON.stringify({
+          signature,
+          buyer: publicKey.toBase58(),
+          amount: sol,
+        }),
       });
 
       const data = await response.json();
-      setStatus(response.ok && data.success ? "✅ Purchase successful! Tokens sent." : `❌ Backend error: ${data.error || "Unknown error"}`);
+      setStatus(
+        response.ok && data.success
+          ? "🎉 Purchase successful! Tokens sent."
+          : `❌ Backend error: ${data.error || "Unknown error"}`
+      );
     } catch (err) {
-      console.error(err);
-      setStatus("❌ Transaction failed or cancelled.");
+      console.error("Transaction error:", err);
+      setStatus("❌ Transaction failed. Please check your wallet and balance.");
     } finally {
       setLoading(false);
     }
@@ -76,37 +114,46 @@ export default function PresaleForm() {
 
   return (
     <form onSubmit={handleBuy} style={formStyle}>
+      <p style={{ color: "#0fef21", fontWeight: "bold", textAlign: "center", marginBottom: 4 }}>
+        Min: 0.05 SOL &nbsp;&nbsp; Max: 5 SOL
+      </p>
+
       <input
         type="number"
         placeholder="SOL amount"
         value={solAmount}
-        min="0.001"
-        step="0.001"
+        min="0.005"
+        max="5"
+        step="0.0001"
         inputMode="decimal"
-        disabled={!connected || loading}
+        disabled={loading}
         onChange={(e) => updateFromSol(e.target.value)}
         style={inputStyle}
       />
+
       <input
         type="number"
         placeholder="WoofAi Token amount"
         value={wfaiAmount}
+        min="5000"
+        max="5000000"
         step="1"
-        min="1"
         inputMode="numeric"
-        disabled={!connected || loading}
+        disabled={loading}
         onChange={(e) => updateFromWfai(e.target.value)}
         style={inputStyle}
       />
+
       <button
         type="submit"
-        disabled={!connected || loading}
+        disabled={loading}
         style={buttonStyle}
         onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#0cb813")}
         onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#0fef21")}
       >
         {loading ? "Processing..." : "Buy WoofAi Tokens"}
       </button>
+
       <p style={statusStyle}>{status}</p>
     </form>
   );

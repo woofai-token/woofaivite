@@ -1,38 +1,127 @@
+/* App.css */
+@import url('https://fonts.googleapis.com/css2?family=Audiowide&display=swap');
+
 body {
-  font-family: sans-serif;
-  background: #010101;
-  color: #00ff88;
-  padding: 1rem;
+  margin: 0;
+  padding: 0;
+  background-color: #000;
+  color: #0efa5a;
+  font-family: 'Audiowide', sans-serif;
 }
-.container {
-  max-width: 600px;
-  margin: auto;
+
+.app-container {
+  padding: 24px;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-.card {
-  background: #111;
-  padding: 2rem;
-  border-radius: 10px;
-  box-shadow: 0 0 30px #00ff8870;
-  margin-top: 2rem;
+
+.main-content {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 36px;
+  flex-wrap: wrap;
+  max-width: 1100px;
+  width: 100%;
+}
+
+.presale-section {
+  max-width: 480px;
+  padding: 28px;
+  border-radius: 12px;
+  background-color: #001a00;
+  border: 1px solid #0efa5a66;
+  color: #0efa5a;
   text-align: center;
+  flex: 1 1 320px;
 }
+
+.chart-section {
+  padding: 28px;
+  background-color: #001a00;
+  border-radius: 12px;
+  border: 1px solid #0efa5a66;
+  flex: 1 1 320px;
+  text-align: center;
+  min-width: 280px;
+  max-width: 480px;
+}
+
+.heading {
+  font-size: 32px;
+  margin: 20px 0;
+  font-weight: 700;
+}
+
+.chart-heading {
+  font-size: 24px;
+  margin-bottom: 18px;
+  font-weight: 600;
+}
+
+.wallet-button {
+  margin-bottom: 20px;
+  background-color: #0efa5a !important;
+  color: #001f00 !important;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Audiowide', sans-serif;
+}
+
+.burn-note {
+  margin-top: 28px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #f44336;
+}
+
+.footer {
+  margin-top: 48px;
+  font-size: 13px;
+  opacity: 0.85;
+  color: #0efa5aaa;
+}
+
+.contact-link {
+  color: #0efa5a;
+  text-decoration: underline;
+}
+
 .logo {
   width: 100px;
+  height: 100px;
+  border-radius: 16px;
+  margin-bottom: 10px;
 }
-button {
-  background: #00ff88;
-  border: none;
-  padding: 0.5rem 1rem;
-  color: black;
-  font-weight: bold;
+
+.social-bar {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.social-icon {
+  width: 28px;
+  height: 28px;
   cursor: pointer;
-  margin-top: 1rem;
 }
-input {
-  padding: 0.5rem;
-  width: 100%;
-  background: #222;
-  color: #00ff88;
-  border: 1px solid #00ff88;
-  margin-bottom: 1rem;
+
+/* Wallet adapter overrides */
+.wallet-adapter-button {
+  background-color: #0efa5a !important;
+  color: #001f00 !important;
+  font-family: 'Audiowide', sans-serif !important;
+}
+
+.wallet-adapter-modal-wrapper {
+  background: #001a00 !important;
+}
+
+.wallet-adapter-modal-title {
+  color: #0efa5a !important;
+  font-family: 'Audiowide', sans-serif !important;
 }

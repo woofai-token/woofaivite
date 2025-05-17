@@ -13,13 +13,11 @@ const network = "https://mainnet.helius-rpc.com/?api-key=fabdaf9f-b1de-4a1b-bb03
 import {
   PhantomWalletAdapter,
   SolflareWalletAdapter,
-  TrustWalletAdapter,
 } from "@solana/wallet-adapter-wallets";
 
 const wallets = [
   new PhantomWalletAdapter(),
   new SolflareWalletAdapter(),
-  new TrustWalletAdapter()
 ];
 ReactDOM.createRoot(document.getElementById("root")).render(
   <ConnectionProvider endpoint={network}>
