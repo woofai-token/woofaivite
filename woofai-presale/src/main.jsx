@@ -8,58 +8,45 @@ import "@solana/wallet-adapter-react-ui/styles.css";
 
 const network = "https://mainnet.helius-rpc.com/?api-key=fabdaf9f-b1de-4a1b-bb03-58532838cea3";
 
-// 1. COMPLETELY DISABLE WALLET STANDARD AND MWA
+// 1. BLOCK MOBILE WALLETS WITHOUT BREAKING PHANTOM
 if (typeof window !== "undefined") {
-  // Nuclear option 1: Disable all wallet auto-discovery
+  // Keep this minimal to avoid interfering with Phantom
   window.walletRouter = {
     disableWalletStandard: true,
-    disableMobileWalletAdapter: true,
-    walletStandardOverride: () => []
+    disableMobileWalletAdapter: true
   };
-
-  // Nuclear option 2: Prevent any mobile-related wallet code from loading
+  
+  // Preserve the original solana object if it exists
+  const originalSolana = window.solana;
   Object.defineProperty(window, 'solana', {
-    writable: false,
-    value: {
-      isPhantom: true, // Trick browsers into thinking Phantom is available
-      isSolflare: true // Same for Solflare
+    get: () => originalSolana,
+    set: (value) => {
+      // Only allow setting if it's not a mobile wallet
+      if (!value?.isMobile) {
+        originalSolana = value;
+      }
     }
   });
-
-  // Nuclear option 3: Delete mobile wallet references
-  delete window.solanaMobile;
-  delete window.ReactNativeWebView;
 }
 
-// 2. STRICT WALLET FILTERING
+// 2. WALLET SETUP WITH PROPER ERROR HANDLING
 const wallets = [
   new PhantomWalletAdapter(),
   new SolflareWalletAdapter(),
-].filter(wallet => {
-  // Double-check we only allow Phantom and Solflare
-  return ['Phantom', 'Solflare'].includes(wallet.name);
-});
+];
 
-// 3. FORCE CLEAN ENVIRONMENT
-const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-if (isMobile) {
-  // Extra mobile-specific protections
-  window.localStorage.removeItem('walletAdapter');
-  window.sessionStorage.removeItem('walletAdapter');
-}
-
+// 3. IMPROVED WALLET PROVIDER CONFIG
 ReactDOM.createRoot(document.getElementById("root")).render(
   <ConnectionProvider endpoint={network}>
     <WalletProvider 
-      wallets={wallets} 
-      autoConnect={false} // Disable auto-connect for maximum control
-      onError={(error) => {
-        // Log any wallet errors
-        console.error('Wallet Error:', error);
-      }}
+      wallets={wallets}
+      autoConnect={false}
+      onError={(error) => console.error("Wallet error:", error)}
     >
       <WalletModalProvider
-        featuredWallets={2} // Only show our 2 wallets
+        featuredWallets={2}
+        // Explicitly exclude any mobile wallets
+        wallets={wallets.filter(w => !w.name.toLowerCase().includes('mobile'))}
       >
         <App />
       </WalletModalProvider>
