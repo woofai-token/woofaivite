@@ -19,9 +19,11 @@ const wallets = [
   new PhantomWalletAdapter(),
   new SolflareWalletAdapter(),
 ];
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
 ReactDOM.createRoot(document.getElementById("root")).render(
   <ConnectionProvider endpoint={network}>
-    <WalletProvider wallets={wallets} autoConnect>
+    <WalletProvider wallets={wallets} autoConnect={!isMobile}>
       <WalletModalProvider>
         <App />
       </WalletModalProvider>
