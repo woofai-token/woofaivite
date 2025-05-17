@@ -1,6 +1,5 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-
 import App from "./App";
 
 import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
@@ -8,30 +7,16 @@ import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 
 import "@solana/wallet-adapter-react-ui/styles.css";
 
-// Load RPC endpoint from Vite environment variable
-const network = import.meta.env.VITE_SOLANA_RPC_URL;
+import { PhantomWalletAdapter, SolflareWalletAdapter } from "@solana/wallet-adapter-wallets";
 
-// Import wallet adapters
-import {
-  PhantomWalletAdapter,
-  SolflareWalletAdapter,
-} from "@solana/wallet-adapter-wallets";
+const network = "https://mainnet.helius-rpc.com/?api-key=fabdaf9f-b1de-4a1b-bb03-58532838cea3";
 
-import { MobileWalletAdapter } from "@solana-mobile/wallet-adapter-mobile";
-
-// Detect mobile device
-const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-// Wallet list including Mobile Wallet Adapter
 const wallets = [
   new PhantomWalletAdapter(),
   new SolflareWalletAdapter(),
-  new MobileWalletAdapter({
-    appIdentity: {
-      name: "WoofAI Presale"
-    }
-  })
 ];
+
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <ConnectionProvider endpoint={network}>
