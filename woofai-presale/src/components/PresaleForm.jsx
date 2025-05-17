@@ -115,7 +115,7 @@ export default function PresaleForm() {
   return (
     <form onSubmit={handleBuy} style={formStyle}>
       <p style={{ color: "#0fef21", fontWeight: "bold", textAlign: "center", marginBottom: 4 }}>
-        Min: 0.05 SOL &nbsp;&nbsp; Max: 5 SOL
+        Min: 0.005 SOL &nbsp;&nbsp; Max: 5 SOL
       </p>
 
       <input
