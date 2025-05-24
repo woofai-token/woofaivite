@@ -3,81 +3,54 @@ import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import PresaleForm from "./components/PresaleForm";
 import Countdown from "./components/Countdown";
 
-// Load Audiowide font dynamically
 const audiowideLink = document.createElement("link");
 audiowideLink.href = "https://fonts.googleapis.com/css2?family=Audiowide&display=swap";
 audiowideLink.rel = "stylesheet";
 document.head.appendChild(audiowideLink);
 
-// Inject keyframe animations globally
-const styleSheet = document.createElement("style");
-styleSheet.innerHTML = `
-  @keyframes gradientMove {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-
-  @keyframes parallax1 {
-    0% { transform: translateY(0px); }
-    100% { transform: translateY(-100px); }
-  }
-
-  @keyframes parallax2 {
-    0% { transform: translateY(0px); }
-    100% { transform: translateY(-50px); }
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-`;
-document.head.appendChild(styleSheet);
-
 export default function App() {
-  const [showPrompt, setShowPrompt] = useState(false);
-  const [walletName, setWalletName] = useState("");
+  const [showWalletPopup, setShowWalletPopup] = useState(false);
 
   useEffect(() => {
-    const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent);
-    const isInAppBrowser = /phantom|solflare/i.test(navigator.userAgent);
-    const hasPhantom = window?.phantom?.solana?.isPhantom;
-    const hasSolflare = window?.solflare?.isSolflare;
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const isPhantom = window?.solana?.isPhantom;
+    const isSolflare = window?.solflare?.isSolflare;
 
-    if (isMobile && !isInAppBrowser && (hasPhantom || hasSolflare)) {
-      setShowPrompt(true);
-      setWalletName(hasPhantom ? "Phantom" : "Solflare");
+    if (isMobile && !isPhantom && !isSolflare) {
+      setShowWalletPopup(true);
     }
   }, []);
 
-  const openInWalletApp = () => {
-    const currentUrl = window.location.href;
-    const deeplink = walletName === "Phantom"
-      ? `https://phantom.app/ul/browse/${encodeURIComponent(currentUrl)}`
-      : `https://solflare.com/ul/browse/${encodeURIComponent(currentUrl)}`;
-    window.location.href = deeplink;
+  const handleRedirect = (wallet) => {
+    const url = encodeURIComponent(window.location.href);
+    if (wallet === "phantom") {
+      window.location.href = `https://phantom.app/ul/browse/${url}`;
+    } else if (wallet === "solflare") {
+      window.location.href = `https://solflare.com/link/browser?url=${url}`;
+    }
   };
 
   return (
     <>
       <AnimatedBackground />
-      {showPrompt && (
-        <div style={styles.promptBanner}>
-          <p>
-            {walletName} Wallet detected. For best experience,{" "}
-            <strong>open this site inside the {walletName} app browser.</strong>
-          </p>
-          <button onClick={openInWalletApp} style={styles.openBtn}>
-            Open in {walletName}
-          </button>
+      {showWalletPopup && (
+        <div style={styles.popupOverlay}>
+          <div style={styles.popupBox}>
+            <h3>Open in Wallet Browser</h3>
+            <p>To connect your wallet, please open this site in:</p>
+            <button onClick={() => handleRedirect("phantom")} style={styles.popupButton}>
+              Open in Phantom
+            </button>
+            <button onClick={() => handleRedirect("solflare")} style={styles.popupButton}>
+              Open in Solflare
+            </button>
+          </div>
         </div>
       )}
 
       <div style={styles.page}>
         <div style={styles.parallaxLayer1}></div>
         <div style={styles.parallaxLayer2}></div>
-
         <div style={styles.container}>
           <div style={styles.presaleSection}>
             <div style={styles.logoContainer}>
@@ -95,10 +68,7 @@ export default function App() {
               🔥 Unsold tokens will be <strong>burned forever</strong>.
             </p>
             <footer style={styles.footer}>
-              © 2025 WoofAi · Contact:{" "}
-              <a href="mailto:woofai.coin@gmail.com" style={styles.contactLink}>
-                woofai.coin@gmail.com
-              </a>
+              © 2025 WoofAi · Contact: <a href="mailto:woofai.coin@gmail.com" style={styles.contactLink}>woofai.coin@gmail.com</a>
             </footer>
           </div>
         </div>
@@ -112,6 +82,77 @@ function AnimatedBackground() {
 }
 
 const styles = {
+  popupOverlay: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100vw",
+    height: "100vh",
+    backgroundColor: "rgba(0,0,0,0.8)",
+    zIndex: 1000,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  popupBox: {
+    backgroundColor: "#001f00",
+    padding: 24,
+    borderRadius: 12,
+    border: "1px solid #0efa5a99",
+    color: "#0efa5a",
+    textAlign: "center",
+    width: 300,
+    boxShadow: "0 0 20px #0efa5a55",
+  },
+  popupButton: {
+    backgroundColor: "#0efa5a",
+    color: "#001f00",
+    border: "none",
+    padding: "10px 16px",
+    borderRadius: 8,
+    marginTop: 10,
+    marginBottom: 8,
+    width: "100%",
+    fontWeight: "600",
+    fontSize: 16,
+    cursor: "pointer",
+  },
+  parallaxLayer1: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100vw",
+    height: "100vh",
+    background: "url('https://www.transparenttextures.com/patterns/stardust.png') repeat",
+    opacity: 0.1,
+    zIndex: 0,
+    pointerEvents: "none",
+    animation: "parallax1 60s linear infinite",
+  },
+  parallaxLayer2: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100vw",
+    height: "100vh",
+    background: "radial-gradient(circle at center, #0fef21 15%, transparent 80%)",
+    opacity: 0.04,
+    zIndex: 0,
+    pointerEvents: "none",
+    animation: "parallax2 40s linear infinite",
+  },
+  animatedBackground: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100vw",
+    height: "100vh",
+    background: "linear-gradient(270deg, #0fef21, #002200, #004400, #0fef21)",
+    backgroundSize: "800% 800%",
+    animation: "gradientMove 30s ease infinite",
+    filter: "blur(70px)",
+    zIndex: -2,
+  },
   page: {
     position: "relative",
     padding: 24,
@@ -165,6 +206,7 @@ const styles = {
     fontSize: 15,
     fontWeight: "600",
     color: "#f44336",
+    textShadow: "none",
   },
   footer: {
     marginTop: 48,
@@ -181,72 +223,11 @@ const styles = {
     height: 120,
     borderRadius: 16,
     boxShadow: "0 0 18px #0efa5a88",
-    // animation: "spin 15s linear infinite",
+    animation: "spin 15s linear infinite",
     userSelect: "none",
   },
   logoContainer: {
     marginBottom: 14,
     perspective: 900,
-  },
-  animatedBackground: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100vw",
-    height: "100vh",
-    background: "linear-gradient(270deg, #0fef21, #002200, #004400, #0fef21)",
-    backgroundSize: "800% 800%",
-    animation: "gradientMove 30s ease infinite",
-    filter: "blur(70px)",
-    zIndex: -2,
-  },
-  parallaxLayer1: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100vw",
-    height: "100vh",
-    background: "url('https://www.transparenttextures.com/patterns/stardust.png') repeat",
-    opacity: 0.1,
-    zIndex: 0,
-    pointerEvents: "none",
-    animation: "parallax1 60s linear infinite",
-  },
-  parallaxLayer2: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100vw",
-    height: "100vh",
-    background: "radial-gradient(circle at center, #0fef21 15%, transparent 80%)",
-    opacity: 0.04,
-    zIndex: 0,
-    pointerEvents: "none",
-    animation: "parallax2 40s linear infinite",
-  },
-  promptBanner: {
-    backgroundColor: "#001f00",
-    color: "#0efa5a",
-    padding: "14px 20px",
-    textAlign: "center",
-    fontSize: "15px",
-    fontFamily: "'Audiowide', monospace",
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100%",
-    zIndex: 9999,
-    boxShadow: "0 2px 6px rgba(0,0,0,0.4)",
-  },
-  openBtn: {
-    marginTop: 10,
-    backgroundColor: "#0efa5a",
-    border: "none",
-    padding: "10px 18px",
-    borderRadius: "6px",
-    fontWeight: "bold",
-    color: "#001f00",
-    cursor: "pointer",
-    boxShadow: "0 0 10px #0efa5a66",
   },
 };
