@@ -1,32 +1,46 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import { PublicKey, Transaction, SystemProgram } from "@solana/web3.js";
 
 const BACKEND_URL = "https://woofaiserver.onrender.com";
-const CONVERSION_RATE = 1000000; // 1 SOL = 1,000,000 WFAI
+const WFAI_PER_USDT = 1 / 0.00017; // ~5882.35 WFAI per USDT
 const RECEIVER_WALLET = new PublicKey("GWkwfF8BbA591V4ZFTLDJJ9eRy5Mhp2Z9zNBNFvf6cgy");
 
 export default function PresaleForm() {
   const { publicKey, sendTransaction, connected } = useWallet();
   const { connection } = useConnection();
 
+  const [usdtAmount, setUsdtAmount] = useState("");
   const [solAmount, setSolAmount] = useState("");
   const [wfaiAmount, setWfaiAmount] = useState("");
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
+  const [solPrice, setSolPrice] = useState(null);
 
-  const updateFromSol = (value) => {
-    setSolAmount(value);
-    const sol = parseFloat(value);
-    if (!isNaN(sol)) setWfaiAmount((sol * CONVERSION_RATE).toFixed(0));
-    else setWfaiAmount("");
-  };
+  useEffect(() => {
+    async function fetchSolPrice() {
+      try {
+        const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd");
+        const data = await res.json();
+        setSolPrice(data.solana.usd);
+      } catch (err) {
+        setStatus("❌ Failed to fetch SOL price.");
+      }
+    }
+    fetchSolPrice();
+  }, []);
 
-  const updateFromWfai = (value) => {
-    setWfaiAmount(value);
-    const wfai = parseFloat(value);
-    if (!isNaN(wfai)) setSolAmount((wfai / CONVERSION_RATE).toFixed(4));
-    else setSolAmount("");
+  const updateFromUsdt = (value) => {
+    setUsdtAmount(value);
+    const usdt = parseFloat(value);
+    if (!isNaN(usdt) && solPrice) {
+      const sol = usdt / solPrice;
+      setSolAmount(sol.toFixed(4));
+      setWfaiAmount((usdt * WFAI_PER_USDT).toFixed(0));
+    } else {
+      setSolAmount("");
+      setWfaiAmount("");
+    }
   };
 
   async function handleBuy(e) {
@@ -39,7 +53,7 @@ export default function PresaleForm() {
 
     const sol = parseFloat(solAmount);
     if (!sol || isNaN(sol) || sol <= 0) {
-      setStatus("❌ Enter a valid SOL amount.");
+      setStatus("❌ Enter a valid amount in USDT.");
       return;
     }
 
@@ -61,7 +75,6 @@ export default function PresaleForm() {
         })
       );
 
-      // Optional: simulate transaction logs
       try {
         const simulation = await connection.simulateTransaction(transaction);
         if (simulation.value.logs) {
@@ -89,14 +102,15 @@ export default function PresaleForm() {
       setStatus("✅ Transaction confirmed. Verifying with backend...");
 
       const response = await fetch(`${BACKEND_URL}/verify`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          signature,
-          buyer: publicKey.toBase58(),
-          amount: sol,
-        }),
-      });
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    signature,
+    buyer: publicKey.toBase58(),
+    amount: sol,
+    wfaiAmount: parseInt(wfaiAmount, 10), // send as integer
+  }),
+});
 
       const data = await response.json();
       setStatus(
@@ -114,33 +128,39 @@ export default function PresaleForm() {
 
   return (
     <form onSubmit={handleBuy} style={formStyle}>
-      <p style={{ color: "#0fef21", fontWeight: "bold", textAlign: "center", marginBottom: 4 }}>
-        Min: 0.05 SOL &nbsp;&nbsp; Max: 5 SOL
+      <p style={{ color: "#0fef21", fontWeight: "bold", textAlign: "center", marginBottom: -10 }}>
+        Min: ~$1 USDT &nbsp;&nbsp; Max: ~$500 USDT
+      </p>
+   <p style={{ color: "#0fef21", fontWeight: "bold", textAlign: "center", marginBottom: 4 }}>
+        Current price: 1 $WOFAI = $0.00017 USDT &nbsp;&nbsp; Next Presale price: 1 $WOFAI = $0.00022 USDT
       </p>
 
       <input
         type="number"
-        placeholder="SOL amount"
-        value={solAmount}
-        min="0.005"
-        max="5"
-        step="0.0001"
+        placeholder="USDT amount"
+        value={usdtAmount}
+        min="1"
+        max="500"
+        step="0.01"
         inputMode="decimal"
         disabled={loading}
-        onChange={(e) => updateFromSol(e.target.value)}
+        onChange={(e) => updateFromUsdt(e.target.value)}
         style={inputStyle}
       />
 
       <input
-        type="number"
+        type="text"
+        placeholder="SOL you will pay"
+        value={solAmount}
+        disabled
+        style={inputStyle}
+      />
+
+      <input
+        type="text"
         placeholder="WoofAi Token amount"
         value={wfaiAmount}
-        min="5000"
-        max="5000000"
-        step="1"
-        inputMode="numeric"
-        disabled={loading}
-        onChange={(e) => updateFromWfai(e.target.value)}
+        disabled
         style={inputStyle}
       />
 
