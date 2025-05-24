@@ -123,12 +123,12 @@ export default function App() {
                 </button>
               </div>
             </div>
-            <button
+            {/* <button
               onClick={() => setShowWalletPopup(false)}
               style={{ ...styles.walletButton, marginTop: 24, backgroundColor: "#f44336" }}
             >
               Close
-            </button>
+            </button> */}
           </div>
         </div>
       )}
