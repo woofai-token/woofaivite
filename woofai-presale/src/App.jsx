@@ -1,25 +1,84 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import PresaleForm from "./components/PresaleForm";
-import TokenomicsChart from "./components/TokenomicsChart";
 import Countdown from "./components/Countdown";
 
-// Audiowide font still loaded dynamically
+// Load Audiowide font dynamically
 const audiowideLink = document.createElement("link");
 audiowideLink.href = "https://fonts.googleapis.com/css2?family=Audiowide&display=swap";
 audiowideLink.rel = "stylesheet";
 document.head.appendChild(audiowideLink);
 
+// Inject keyframe animations globally
+const styleSheet = document.createElement("style");
+styleSheet.innerHTML = `
+  @keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  @keyframes parallax1 {
+    0% { transform: translateY(0px); }
+    100% { transform: translateY(-100px); }
+  }
+
+  @keyframes parallax2 {
+    0% { transform: translateY(0px); }
+    100% { transform: translateY(-50px); }
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+document.head.appendChild(styleSheet);
+
 export default function App() {
+  const [showPrompt, setShowPrompt] = useState(false);
+  const [walletName, setWalletName] = useState("");
+
+  useEffect(() => {
+    const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent);
+    const isInAppBrowser = /phantom|solflare/i.test(navigator.userAgent);
+    const hasPhantom = window?.phantom?.solana?.isPhantom;
+    const hasSolflare = window?.solflare?.isSolflare;
+
+    if (isMobile && !isInAppBrowser && (hasPhantom || hasSolflare)) {
+      setShowPrompt(true);
+      setWalletName(hasPhantom ? "Phantom" : "Solflare");
+    }
+  }, []);
+
+  const openInWalletApp = () => {
+    const currentUrl = window.location.href;
+    const deeplink = walletName === "Phantom"
+      ? `https://phantom.app/ul/browse/${encodeURIComponent(currentUrl)}`
+      : `https://solflare.com/ul/browse/${encodeURIComponent(currentUrl)}`;
+    window.location.href = deeplink;
+  };
+
   return (
     <>
       <AnimatedBackground />
+      {showPrompt && (
+        <div style={styles.promptBanner}>
+          <p>
+            {walletName} Wallet detected. For best experience,{" "}
+            <strong>open this site inside the {walletName} app browser.</strong>
+          </p>
+          <button onClick={openInWalletApp} style={styles.openBtn}>
+            Open in {walletName}
+          </button>
+        </div>
+      )}
+
       <div style={styles.page}>
         <div style={styles.parallaxLayer1}></div>
         <div style={styles.parallaxLayer2}></div>
 
         <div style={styles.container}>
-          {/* Left: Presale */}
           <div style={styles.presaleSection}>
             <div style={styles.logoContainer}>
               <img
@@ -42,12 +101,6 @@ export default function App() {
               </a>
             </footer>
           </div>
-
-          {/* Right: Tokenomics */}
-          <div style={styles.chartSection}>
-            <h2 style={styles.chartHeading}>📊 Tokenomics</h2>
-            <TokenomicsChart />
-          </div>
         </div>
       </div>
     </>
@@ -59,51 +112,12 @@ function AnimatedBackground() {
 }
 
 const styles = {
-  parallaxLayer1: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100vw",
-    height: "100vh",
-    background:
-      "url('https://www.transparenttextures.com/patterns/stardust.png') repeat",
-    opacity: 0.1,
-    zIndex: 0,
-    pointerEvents: "none",
-    animation: "parallax1 60s linear infinite",
-  },
-  parallaxLayer2: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100vw",
-    height: "100vh",
-    background:
-      "radial-gradient(circle at center, #0fef21 15%, transparent 80%)",
-    opacity: 0.04,
-    zIndex: 0,
-    pointerEvents: "none",
-    animation: "parallax2 40s linear infinite",
-  },
-  animatedBackground: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100vw",
-    height: "100vh",
-    background:
-      "linear-gradient(270deg, #0fef21, #002200, #004400, #0fef21)",
-    backgroundSize: "800% 800%",
-    animation: "gradientMove 30s ease infinite",
-    filter: "blur(70px)",
-    zIndex: -2,
-  },
   page: {
     position: "relative",
     padding: 24,
     minHeight: "100vh",
     fontFamily: "'Audiowide', monospace",
-    color: "#0efa5a", // softer green
+    color: "#0efa5a",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
@@ -124,34 +138,17 @@ const styles = {
     padding: 28,
     borderRadius: 12,
     backgroundColor: "rgba(0, 40, 0, 0.85)",
-    boxShadow: "0 0 10px #0efa5a44", // subtle glow
+    boxShadow: "0 0 10px #0efa5a44",
     border: "1px solid #0efa5a99",
     color: "#0efa5a",
     textAlign: "center",
     flex: "1 1 320px",
-  },
-  chartSection: {
-    padding: 28,
-    backgroundColor: "rgba(0, 40, 0, 0.85)",
-    borderRadius: 12,
-    border: "1px solid #0efa5a99",
-    boxShadow: "0 0 10px #0efa5a44",
-    flex: "1 1 320px",
-    textAlign: "center",
-    minWidth: 280,
-    maxWidth: 480,
   },
   heading: {
     fontSize: 32,
     marginBottom: 14,
     fontWeight: "700",
     textShadow: "0 0 6px #0efa5a88",
-  },
-  chartHeading: {
-    fontSize: 24,
-    marginBottom: 18,
-    fontWeight: "600",
-    textShadow: "0 0 5px #0efa5a77",
   },
   walletButton: {
     marginBottom: 22,
@@ -168,7 +165,6 @@ const styles = {
     fontSize: 15,
     fontWeight: "600",
     color: "#f44336",
-    textShadow: "none",
   },
   footer: {
     marginTop: 48,
@@ -185,11 +181,72 @@ const styles = {
     height: 120,
     borderRadius: 16,
     boxShadow: "0 0 18px #0efa5a88",
-    animation: "spin 15s linear infinite",
+    // animation: "spin 15s linear infinite",
     userSelect: "none",
   },
   logoContainer: {
     marginBottom: 14,
     perspective: 900,
+  },
+  animatedBackground: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100vw",
+    height: "100vh",
+    background: "linear-gradient(270deg, #0fef21, #002200, #004400, #0fef21)",
+    backgroundSize: "800% 800%",
+    animation: "gradientMove 30s ease infinite",
+    filter: "blur(70px)",
+    zIndex: -2,
+  },
+  parallaxLayer1: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100vw",
+    height: "100vh",
+    background: "url('https://www.transparenttextures.com/patterns/stardust.png') repeat",
+    opacity: 0.1,
+    zIndex: 0,
+    pointerEvents: "none",
+    animation: "parallax1 60s linear infinite",
+  },
+  parallaxLayer2: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100vw",
+    height: "100vh",
+    background: "radial-gradient(circle at center, #0fef21 15%, transparent 80%)",
+    opacity: 0.04,
+    zIndex: 0,
+    pointerEvents: "none",
+    animation: "parallax2 40s linear infinite",
+  },
+  promptBanner: {
+    backgroundColor: "#001f00",
+    color: "#0efa5a",
+    padding: "14px 20px",
+    textAlign: "center",
+    fontSize: "15px",
+    fontFamily: "'Audiowide', monospace",
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100%",
+    zIndex: 9999,
+    boxShadow: "0 2px 6px rgba(0,0,0,0.4)",
+  },
+  openBtn: {
+    marginTop: 10,
+    backgroundColor: "#0efa5a",
+    border: "none",
+    padding: "10px 18px",
+    borderRadius: "6px",
+    fontWeight: "bold",
+    color: "#001f00",
+    cursor: "pointer",
+    boxShadow: "0 0 10px #0efa5a66",
   },
 };
