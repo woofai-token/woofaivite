@@ -3,7 +3,7 @@ import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import { PublicKey, Transaction, SystemProgram } from "@solana/web3.js";
 
 const BACKEND_URL = "https://woofaiserver.onrender.com";
-const WFAI_PER_USDT = 1 / 0.00017; // ~5882.35 WFAI per USDT
+const WFAI_PER_USDT = 1 / 0.000034; 
 const RECEIVER_WALLET = new PublicKey("GWkwfF8BbA591V4ZFTLDJJ9eRy5Mhp2Z9zNBNFvf6cgy");
 
 export default function PresaleForm() {
@@ -107,8 +107,7 @@ export default function PresaleForm() {
   body: JSON.stringify({
     signature,
     buyer: publicKey.toBase58(),
-    amount: sol,
-    wfaiAmount: parseInt(wfaiAmount, 10), // send as integer
+    wfaiAmount: (parseInt(wfaiAmount, 10) * 1e9).toString(), // now correct
   }),
 });
 
@@ -132,7 +131,7 @@ export default function PresaleForm() {
         Min: ~$1 USDT &nbsp;&nbsp; Max: ~$500 USDT
       </p>
    <p style={{ color: "#0fef21", fontWeight: "bold", textAlign: "center", marginBottom: 4 }}>
-        Current price: 1 $WOFAI = $0.00017 USDT &nbsp;&nbsp; Next Presale price: 1 $WOFAI = $0.00022 USDT
+        Current price: 1 $WOFAI = $0.000034 USDT &nbsp;&nbsp; Next Presale price: 1 $WOFAI = $0.000041 USDT
       </p>
 
       <input
