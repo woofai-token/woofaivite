@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 export default function Countdown() {
   // Fixed end date (replace with your actual presale end date)
-  const END_DATE = new Date("2025-05-28T00:00:00"); // Example: July 1, 2025
+  const END_DATE = new Date("2025-05-29T00:00:00"); // Example: July 1, 2025
   
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
 
