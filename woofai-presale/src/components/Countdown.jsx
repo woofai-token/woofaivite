@@ -46,7 +46,7 @@ export default function Countdown() {
         <div style={styles.expiredText}></div>
       ) : (
         <>
-          <div style={styles.label}>⏳Price increases After:</div>
+          <div style={styles.label}>⏳Price Goes Up in:</div>
           <div style={styles.timer}>
             <span style={styles.timeUnit}>
               {formatNumber(timeLeft.days)}<small>d</small>
