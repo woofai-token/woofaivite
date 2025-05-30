@@ -131,7 +131,7 @@ export default function PresaleForm() {
         Min: ~$1 USDT &nbsp;&nbsp; Max: ~$500 USDT
       </p>
    <p style={{ color: "#0fef21", fontWeight: "bold", textAlign: "center", marginBottom: 4 }}>
-        Current price: 1 $WOFAI = $0.0000041 USDT &nbsp;&nbsp; Next Presale price: 1 $WOFAI = $0.0000043 USDT
+        Current price: 1 $WOFAI = $0.0000041 USDT &nbsp;&nbsp; Next Presale price: 1 $WOFAI = $0.0000052 USDT
       </p>
 
       <input
