@@ -3,6 +3,7 @@ import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import PresaleForm from "./components/PresaleForm";
 import TokenomicsChart from "./components/TokenomicsChart";
 import Countdown from "./components/Countdown";
+import SaleProgress from "./components/progress"; 
 
 // Audiowide font still loaded dynamically
 const audiowideLink = document.createElement("link");
@@ -73,6 +74,7 @@ export default function App() {
             </div>
             <h1 style={styles.heading}>🚀 WoofAi Token Presale</h1>
             <Countdown />
+            <SaleProgress />
             <WalletMultiButton style={styles.walletButton} />
             <PresaleForm />
             <p style={styles.burnNote}>
