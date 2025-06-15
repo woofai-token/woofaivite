@@ -72,7 +72,7 @@ export default function App() {
                 style={styles.spinningLogo}
               />
             </div>
-            <h1 style={styles.heading}>🚀 WoofAi Token Presale</h1>
+            <h1 style={styles.heading}>🚀 WoofAi Token Presale 1</h1>
             <Countdown />
             <SaleProgress />
             <WalletMultiButton style={styles.walletButton} />
